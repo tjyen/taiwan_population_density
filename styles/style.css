@@ -1,0 +1,999 @@
+/* ============================================
+   TAIWAN POPULATION DENSITY MAP
+   Aesthetic: Cartographic Elegance
+   ============================================ */
+
+/* Google Fonts - Distinctive Typography */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* CSS Custom Properties - Design Tokens */
+:root {
+    /* Typography */
+    --font-display: 'Outfit', sans-serif;
+    --font-body: 'Noto Sans TC', sans-serif;
+
+    /* Primary Palette - Warm Earth Tones */
+    --color-ink: #293336;
+    --color-ink-soft: #3d3d5c;
+    --color-ink-muted: #6b6b8a;
+
+    /* Accent - Vibrant Coral */
+    --color-accent: #e85d4c;
+    --color-accent-soft: #f4a394;
+    --color-accent-glow: rgba(232, 93, 76, 0.15);
+
+    /* Surfaces */
+    --color-surface: #E6E6E6;
+    --color-surface-elevated: #ffffff;
+    --color-surface-subtle: #f0eee9;
+
+    /* Borders & Dividers */
+    --color-border: #e5e2dc;
+    --color-border-strong: #d1cdc4;
+
+    /* Semantic */
+    --color-success: #2d9c6a;
+    --color-warning: #e4a93c;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(26, 26, 46, 0.06);
+    --shadow-md: 0 4px 12px rgba(26, 26, 46, 0.08);
+    --shadow-lg: 0 8px 30px rgba(26, 26, 46, 0.12);
+    --shadow-accent: 0 4px 20px rgba(232, 93, 76, 0.25);
+
+    /* Spacing Scale */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Reset and Base */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-body);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    line-height: 1.6;
+    min-height: 100vh;
+
+    /* Subtle topographic texture */
+    background-image:
+        radial-gradient(circle at 20% 80%, rgba(232, 93, 76, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(45, 156, 106, 0.03) 0%, transparent 50%);
+}
+
+/* ============================================
+   LAYOUT STRUCTURE
+   ============================================ */
+
+.container {
+    max-width: 2000px;
+    margin: 0 auto;
+    padding: var(--space-lg);
+    animation: fadeIn 600ms ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+    position: relative;
+}
+
+.header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 600;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+    position: relative;
+    display: inline-block;
+}
+
+.header h1::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    /*background: linear-gradient(90deg, var(--color-accent), var(--color-accent-soft));*/
+    border-radius: 2px;
+}
+
+/* Main Content - 16:9 Container */
+.main-content {
+    display: flex;
+    gap: var(--space-lg);
+    aspect-ratio: 16 / 9;
+    animation: slideUp 700ms ease-out 100ms both;
+    min-height: 500px;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Left Side Wrapper - Contains bar plots and panels */
+.left-side-wrapper {
+    flex: 6;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    height: 100%;
+}
+
+/* Bottom Panels Container */
+.bottom-panels {
+    display: flex;
+    gap: var(--space-md);
+    flex: 0 0 42%;
+    min-height: 180px;
+}
+
+/* Individual Bottom Panel */
+.bottom-panel {
+    flex: 1;
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* ============================================
+   BAR PLOTS SECTION
+   ============================================ */
+
+.bar-plots-section {
+    flex: 1 1 58%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    min-height: 180px;
+}
+
+.bar-plot-container {
+    flex: 1;
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    min-height: 100px;
+
+    /* Decorative top edge */
+    border-top: none; /*3px solid #293336;*/
+}
+
+.bar-plot-header {
+    flex-shrink: 0;
+    margin-bottom: var(--space-sm);
+}
+
+.bar-plot-header h4 {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.bar-plot {
+    flex: 1 1 auto;
+    min-height: 60px;
+    overflow: hidden;
+    position: relative;
+    /* Prevent container from expanding */
+    max-width: 100%;
+    width: 100%;
+}
+
+.bar-plot-scroll {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-strong) var(--color-surface-subtle);
+}
+
+.bar-plot-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+
+.bar-plot-scroll::-webkit-scrollbar-track {
+    background: var(--color-surface-subtle);
+    border-radius: 4px;
+}
+
+.bar-plot-scroll::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border-radius: 4px;
+}
+
+.bar-plot-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-muted);
+}
+
+.bar-plot svg {
+    display: block;
+}
+
+/* D3 Bar Chart Styles */
+.bar-plot .bar {
+    transition: opacity var(--transition-fast);
+}
+
+.bar-plot .bar:hover {
+    opacity: 0.8;
+}
+
+.bar-plot .bar-label {
+    font-family: var(--font-body);
+    font-size: 9px;
+    fill: var(--color-ink-soft);
+}
+
+.bar-plot .axis text {
+    font-family: var(--font-body);
+    font-size: 9px;
+    fill: var(--color-ink-muted);
+}
+
+.bar-plot .axis line,
+.bar-plot .axis path {
+    stroke: var(--color-border);
+}
+
+.bar-plot .grid line {
+    stroke: var(--color-border);
+    stroke-opacity: 0.5;
+    stroke-dasharray: 2, 2;
+}
+
+.bar-plot .empty-message {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    fill: var(--color-ink-muted);
+}
+
+/* Bar Plot Tooltip */
+.bar-tooltip {
+    position: absolute;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs) var(--space-sm);
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    color: var(--color-ink);
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
+    z-index: 1000;
+    white-space: nowrap;
+}
+
+/* ============================================
+   PANELS
+   ============================================ */
+
+/* Left Panel */
+.left-panel {
+    flex: 1;
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+
+    /* Decorative left edge */
+    /*border-left: 4px; solid #293336;*/
+}
+
+/* Panel Sections */
+.equal-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.panel-section-inner h3 {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+/* Map Container */
+.map-container {
+    flex: 10;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    z-index: 1;
+    position: relative;
+    overflow: hidden;
+
+    /* Elegant border effect */
+    outline: 1px solid var(--color-border);
+    outline-offset: -1px;
+}
+
+/* Map Legend - Top Left Corner (offset to avoid zoom controls) */
+.map-legend {
+    position: absolute;
+    top: var(--space-md);
+    left: 55px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--color-border);
+    max-width: 180px;
+}
+
+.map-legend h4 {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin: 0 0 var(--space-sm) 0;
+    padding-bottom: var(--space-xs);
+    /*border-bottom: 2px solid var(--color-accent);*/
+    white-space: nowrap;
+}
+
+.map-legend .legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.map-legend .legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.85rem;
+    color: var(--color-ink-soft);
+    padding: 1px 0;
+}
+
+.map-legend .legend-color {
+    width: 24px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+/* Map Info Box - Floating Card */
+.map-info-box {
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
+    z-index: 1000;
+    background: var(--color-surface-elevated);
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    min-width: 200px;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--color-border);
+
+    animation: slideIn 200ms ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.map-info-box h4 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin: 0 0 var(--space-sm) 0;
+    padding-bottom: var(--space-sm);
+    /*border-bottom: 2px solid var(--color-accent);*/
+}
+
+.map-info-box p {
+    margin: var(--space-xs) 0;
+    font-size: 1.15rem;
+    color: var(--color-ink-soft);
+    display: flex;
+    justify-content: space-between;
+}
+
+.map-info-box p strong {
+    color: var(--color-ink);
+    font-weight: 500;
+}
+
+/* Middle Panel (Selection Info) */
+.middle-panel {
+    flex: 1;
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-md);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    /* Decorative edge */
+    border-left: none; /*4px solid #293336;*/
+}
+
+.middle-panel h2 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: var(--space-sm);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--color-border);
+    letter-spacing: -0.01em;
+}
+
+.middle-panel h3 {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: var(--space-sm) 0 var(--space-xs) 0;
+}
+
+/* Right Panel (kept for compatibility) */
+.right-panel {
+    flex: 3;
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-lg);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    /* Decorative right edge */
+    /*border-right: 4px solid #293336;*/
+}
+
+.right-panel h2 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    /*border-bottom: 2px solid var(--color-accent);*/
+    letter-spacing: -0.01em;
+}
+
+.right-panel h3 {
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: var(--space-md) 0 var(--space-sm) 0;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.controls {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    margin-bottom: 2px;
+    flex-shrink: 0;
+}
+
+.btn {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: var(--color-surface-elevated);
+    color: var(--color-ink);
+    white-space: nowrap;
+    transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /*background: var(--color-accent);*/
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.btn:hover:not(:disabled) {
+    /*border-color: var(--color-accent);*/
+    /*color: var(--color-accent);*/
+    transform: translateY(-1px);
+    /*box-shadow: var(--shadow-sm);*/
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   STATS & DATA DISPLAY
+   ============================================ */
+
+.stats, .summary-stats {
+    margin-bottom: var(--space-sm);
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-xs) 0;
+    /*border-bottom: 1px solid var(--color-border);*/
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--color-ink-muted);
+    font-weight: 400;
+}
+
+.stat-value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--color-ink);
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   SELECTED TOWNSHIPS LIST
+   ============================================ */
+
+.selected-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.selected-townships {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.empty-message {
+    color: var(--color-ink-muted);
+    font-style: italic;
+    text-align: center;
+    padding: var(--space-xl) var(--space-md);
+    font-size: 1rem;
+}
+
+/* County Group */
+.county-group {
+    margin-bottom: var(--space-sm);
+}
+
+.county-group-header {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-ink);
+    padding: var(--space-sm) var(--space-md);
+    background: linear-gradient(135deg, var(--color-surface-subtle) 0%, var(--color-surface) 100%);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all var(--transition-fast);
+    border: 1px solid var(--color-border);
+}
+
+.county-group-header:hover {
+    /*background: linear-gradient(135deg, var(--color-accent-glow) 0%, var(--color-surface-subtle) 100%);*/
+    /*border-color: var(--color-accent-soft);*/
+}
+
+.county-group-content {
+    padding: var(--space-sm) 0 var(--space-sm) var(--space-md);
+    display: none;
+}
+
+.county-group-content.expanded {
+    display: block;
+    animation: expand 200ms ease-out;
+}
+
+@keyframes expand {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Township Item */
+.township-item {
+    padding: var(--space-sm) var(--space-md);
+    margin-bottom: var(--space-xs);
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-sm);
+    /*border-left: 3px solid var(--color-accent);*/
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.township-item:hover {
+    transform: translateX(3px);
+    box-shadow: var(--shadow-md);
+}
+
+.township-item .name {
+    font-weight: 500;
+    color: var(--color-ink);
+    margin-bottom: 2px;
+    font-size: 1rem;
+}
+
+.township-item .details {
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+}
+
+.township-item .remove-btn {
+    float: right;
+    background: none;
+    border: none;
+    color: var(--color-ink-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 var(--space-xs);
+    transition: all var(--transition-fast);
+    border-radius: var(--radius-sm);
+}
+
+.township-item .remove-btn:hover {
+    /*color: var(--color-accent);*/
+    /*background: var(--color-accent-glow);*/
+}
+
+/* ============================================
+   LEGEND
+   ============================================ */
+
+.legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+    overflow-y: auto;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.95rem;
+    color: var(--color-ink-soft);
+    padding: 2px 0;
+}
+
+.legend-color {
+    width: 28px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* ============================================
+   COUNTY QUICK SELECT GRID
+   ============================================ */
+
+.county-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    flex: 1;
+    align-content: start;
+    overflow: hidden;
+}
+
+.county-btn {
+    padding: 4px 2px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-elevated);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    text-align: center;
+    white-space: nowrap;
+    color: var(--color-ink-soft);
+}
+
+.county-btn:hover {
+    background: var(--color-surface-subtle);
+    /*border-color: var(--color-accent-soft);*/
+    color: var(--color-ink);
+    transform: translateY(-2px);
+    /*box-shadow: var(--shadow-sm);*/
+}
+
+.county-btn.selected {
+    background: #293336;
+    color: white;
+    border-color: #293336;
+    /*box-shadow: var(--shadow-accent);*/
+    font-weight: 600;
+}
+
+.county-btn.selected:hover {
+    background: #3a474b;
+}
+
+/* ============================================
+   LEAFLET CUSTOMIZATIONS
+   ============================================ */
+
+.leaflet-container {
+    font-family: var(--font-body);
+    background: var(--color-surface-subtle);
+}
+
+.leaflet-control-zoom {
+    border: none !important;
+    box-shadow: var(--shadow-md) !important;
+    border-radius: var(--radius-sm) !important;
+    overflow: hidden;
+}
+
+.leaflet-control-zoom a {
+    background: var(--color-surface-elevated) !important;
+    color: var(--color-ink) !important;
+    border: none !important;
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    font-size: 18px !important;
+    transition: all var(--transition-fast);
+}
+
+.leaflet-control-zoom a:hover {
+    background: var(--color-surface-subtle) !important;
+    /*color: var(--color-accent) !important;*/
+}
+
+.leaflet-control-attribution {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(5px);
+    padding: 4px 8px !important;
+    font-size: 10px !important;
+    color: var(--color-ink-muted) !important;
+    border-radius: var(--radius-sm) 0 0 0;
+}
+
+/* Tooltip Styling */
+.leaflet-tooltip {
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    box-shadow: var(--shadow-lg);
+    font-family: var(--font-body);
+}
+
+.leaflet-tooltip::before {
+    border-top-color: var(--color-surface-elevated);
+}
+
+/* Popup Styling */
+.leaflet-popup-content-wrapper {
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+}
+
+.leaflet-popup-content {
+    margin: var(--space-md);
+    font-family: var(--font-body);
+}
+
+.popup-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: var(--space-sm);
+    color: var(--color-ink);
+}
+
+.popup-info {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--color-ink-soft);
+}
+
+.popup-info span {
+    display: block;
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-surface-subtle);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border-radius: 4px;
+    transition: background var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-muted);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1200px) {
+    .main-content {
+        flex-direction: column;
+        aspect-ratio: auto;
+        gap: var(--space-md);
+    }
+
+    .left-panel,
+    .middle-panel,
+    .right-panel {
+        flex: none;
+        border-left: none;
+        border-right: none;
+        border-top: none; /*4px solid #293336;*/
+    }
+
+    .equal-section {
+        flex: none;
+    }
+
+    #map {
+        min-height: 450px;
+    }
+
+    .county-buttons {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: var(--space-md);
+    }
+
+    .header h1 {
+        font-size: 1.25rem;
+    }
+
+    .controls {
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        min-width: 70px;
+        font-size: 0.8rem;
+        padding: var(--space-sm);
+    }
+
+    #map {
+        min-height: 350px;
+    }
+
+    .county-buttons {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .left-panel,
+    .middle-panel,
+    .right-panel {
+        padding: var(--space-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .county-buttons {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    #map {
+        min-height: 280px;
+    }
+}

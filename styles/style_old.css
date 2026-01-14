@@ -1,0 +1,443 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Container */
+.container {
+    max-width: 2000px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.header h1 {
+    font-size: 2.0rem;
+    color: #2c3e50;
+}
+
+/* Main Content Layout - 9:16 aspect ratio container */
+.main-content {
+    display: flex;
+    gap: 15px;
+    aspect-ratio: 16 / 9;
+}
+
+/* Left Panel - 9:5 ratio (5/16 of width) */
+.left-panel {
+    flex: 3;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+}
+
+/* Equal size sections */
+.equal-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.panel-section-inner h3 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+/* Map Container - 9:6 ratio (6/16 of width) */
+.map-container {
+    flex: 10;
+    display: flex;
+    flex-direction: column;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    position: relative;
+}
+
+/* Info box for hover - top right corner of map */
+.map-info-box {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    min-width: 180px;
+    font-size: 0.9rem;
+}
+
+.map-info-box h4 {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+    color: #2c3e50;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 6px;
+}
+
+.map-info-box p {
+    margin: 4px 0;
+    color: #555;
+}
+
+/* Right Panel - 9:5 ratio (5/16 of width) */
+.right-panel {
+    flex: 3;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.right-panel h2 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #3498db;
+}
+
+.right-panel h3 {
+    font-size: 1.2rem;
+    color: #555;
+    margin: 12px 0 8px 0;
+}
+
+/* Controls - Horizontal layout */
+.controls {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.controls-row-2 {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+}
+
+.btn {
+    flex: 1;
+    padding: 8px 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.0rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    background: white;
+    color: black;
+    white-space: nowrap;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn:hover:not(:disabled) {
+    background: #f0f0f0;
+    border-color: #999;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Stats */
+.stats, .summary-stats {
+    margin-bottom: 12px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 1.0rem;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.0rem;
+}
+
+/* Selected List */
+.selected-list {
+    margin-top: 12px;
+}
+
+.selected-townships {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.empty-message {
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    padding: 15px;
+    font-size: 0.9rem;
+}
+
+.township-item {
+    padding: 8px;
+    margin-bottom: 6px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #3498db;
+}
+
+.township-item .name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 3px;
+    font-size: 1.0rem;
+}
+
+.township-item .details {
+    font-size: 1.0rem;
+    color: #666;
+}
+
+.township-item .remove-btn {
+    float: right;
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 1.0rem;
+    padding: 0 5px;
+}
+
+.township-item .remove-btn:hover {
+    color: #c0392b;
+}
+
+/* County Group */
+.county-group {
+    margin-bottom: 8px;
+}
+
+.county-group-header {
+    font-weight: 600;
+    color: #2c3e50;
+    padding: 6px 8px;
+    background: #e8f4fc;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.0rem;
+}
+
+.county-group-header:hover {
+    background: #d4edfc;
+}
+
+.county-group-content {
+    padding: 5px 0 5px 12px;
+    display: none;
+}
+
+.county-group-content.expanded {
+    display: block;
+}
+
+/* Legend */
+.legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.0rem;
+}
+
+.legend-color {
+    width: 30px;
+    height: 15px;
+    border-radius: 2px;
+    border: 1px solid #ccc;
+    flex-shrink: 0;
+}
+
+/* County Buttons - 6 rows x 4 columns grid */
+.county-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    flex: 1;
+    align-content: start;
+    overflow-y: auto;
+}
+
+.county-btn {
+    padding: 5px 3px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 1.0rem;
+    transition: all 0.2s;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.county-btn:hover {
+    background: #f0f0f0;
+    border-color: #3498db;
+}
+
+.county-btn.selected {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+/* Leaflet Customizations */
+.leaflet-container {
+    font-family: inherit;
+}
+
+.leaflet-tooltip {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+}
+
+.leaflet-popup-content {
+    margin: 10px 15px;
+}
+
+.popup-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: #2c3e50;
+}
+
+.popup-info {
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.popup-info span {
+    display: block;
+}
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    z-index: 10000;
+    animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .main-content {
+        flex-direction: column;
+        aspect-ratio: auto;
+    }
+
+    .left-panel,
+    .right-panel {
+        flex: none;
+    }
+
+    .equal-section {
+        flex: none;
+    }
+
+    #map {
+        min-height: 400px;
+    }
+
+    .county-buttons {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .controls {
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        min-width: 70px;
+    }
+
+    #map {
+        min-height: 300px;
+    }
+
+    .county-buttons {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

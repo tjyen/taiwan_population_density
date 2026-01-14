@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Plot Test</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .test-container {
+            width: 600px;
+            height: 200px;
+            border: 2px solid #ccc;
+            margin: 20px 0;
+            position: relative;
+        }
+        .test-container svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        h2 {
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        #log {
+            background: #f5f5f5;
+            padding: 10px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .bar {
+            fill: #e85d4c;
+        }
+        .bar:hover {
+            fill: #d14a3a;
+        }
+    </style>
+</head>
+<body>
+    <h1>D3.js Bar Plot Test</h1>
+
+    <div>
+        <button onclick="testD3()">Test D3.js</button>
+        <button onclick="testSimpleBar()">Test Simple Bar</button>
+        <button onclick="testWithData()">Test With Sample Data</button>
+        <button onclick="clearCharts()">Clear</button>
+    </div>
+
+    <h2>Test Chart 1 (Density)</h2>
+    <div id="test-chart-1" class="test-container"></div>
+
+    <h2>Test Chart 2 (Population)</h2>
+    <div id="test-chart-2" class="test-container"></div>
+
+    <h2>Log Output</h2>
+    <div id="log"></div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${time}] ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function testD3() {
+            log('Testing D3.js...');
+
+            if (typeof d3 === 'undefined') {
+                log('ERROR: D3.js is NOT loaded!');
+                return;
+            }
+
+            log('D3.js version: ' + d3.version);
+            log('D3.js is loaded successfully!');
+
+            // Test container
+            const container = document.getElementById('test-chart-1');
+            log('Container found: ' + (container ? 'YES' : 'NO'));
+
+            if (container) {
+                const bounds = container.getBoundingClientRect();
+                log('Container dimensions: ' + bounds.width + ' x ' + bounds.height);
+            }
+        }
+
+        function testSimpleBar() {
+            log('Testing simple bar chart...');
+
+            const container = d3.select('#test-chart-1');
+            container.selectAll('*').remove();
+
+            const bounds = document.getElementById('test-chart-1').getBoundingClientRect();
+            const width = bounds.width;
+            const height = bounds.height;
+
+            log('Creating SVG: ' + width + ' x ' + height);
+
+            const svg = container.append('svg')
+                .attr('viewBox', `0 0 ${width} ${height}`);
+
+            // Draw a simple rectangle
+            svg.append('rect')
+                .attr('x', 50)
+                .attr('y', 50)
+                .attr('width', 100)
+                .attr('height', 100)
+                .attr('fill', '#e85d4c');
+
+            svg.append('text')
+                .attr('x', width / 2)
+                .attr('y', 30)
+                .attr('text-anchor', 'middle')
+                .text('Simple Rectangle Test');
+
+            log('Simple bar test complete!');
+        }
+
+        function testWithData() {
+            log('Testing with sample data...');
+
+            const sampleData = [
+                { name: '台北市大安區', density: 27000, population: 300000 },
+                { name: '台北市中山區', density: 22000, population: 250000 },
+                { name: '新北市板橋區', density: 18000, population: 550000 },
+                { name: '台中市西屯區', density: 12000, population: 230000 },
+                { name: '高雄市三民區', density: 15000, population: 340000 }
+            ];
+
+            log('Sample data: ' + sampleData.length + ' items');
+
+            // Render density chart
+            renderChart('test-chart-1', sampleData, 'density');
+
+            // Render population chart
+            renderChart('test-chart-2', sampleData, 'population');
+
+            log('Data chart test complete!');
+        }
+
+        function renderChart(containerId, data, type) {
+            const container = document.getElementById(containerId);
+            const d3Container = d3.select('#' + containerId);
+
+            // Clear previous
+            d3Container.selectAll('*').remove();
+
+            const bounds = container.getBoundingClientRect();
+            const width = bounds.width;
+            const height = bounds.height;
+
+            log(`Rendering ${type} chart in ${containerId}: ${width}x${height}`);
+
+            if (width <= 0 || height <= 0) {
+                log('ERROR: Container has no dimensions!');
+                return;
+            }
+
+            const margin = { top: 20, right: 20, bottom: 40, left: 60 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+
+            const svg = d3Container.append('svg')
+                .attr('viewBox', `0 0 ${width} ${height}`);
+
+            const g = svg.append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Scales
+            const xScale = d3.scaleBand()
+                .domain(data.map(d => d.name))
+                .range([0, innerWidth])
+                .padding(0.2);
+
+            const valueAccessor = type === 'density' ? d => d.density : d => d.population;
+            const maxValue = d3.max(data, valueAccessor);
+
+            const yScale = d3.scaleLinear()
+                .domain([0, maxValue * 1.1])
+                .range([innerHeight, 0]);
+
+            // X Axis
+            g.append('g')
+                .attr('transform', `translate(0,${innerHeight})`)
+                .call(d3.axisBottom(xScale))
+                .selectAll('text')
+                .attr('transform', 'rotate(-30)')
+                .style('text-anchor', 'end')
+                .attr('dx', '-0.5em')
+                .attr('dy', '0.15em')
+                .style('font-size', '10px');
+
+            // Y Axis
+            g.append('g')
+                .call(d3.axisLeft(yScale).ticks(5).tickFormat(d => {
+                    if (d >= 1000000) return (d / 1000000).toFixed(1) + 'M';
+                    if (d >= 1000) return (d / 1000).toFixed(0) + 'K';
+                    return d;
+                }));
+
+            // Bars
+            const barColor = type === 'density' ? '#e85d4c' : '#2d9c6a';
+
+            g.selectAll('.bar')
+                .data(data)
+                .enter()
+                .append('rect')
+                .attr('class', 'bar')
+                .attr('x', d => xScale(d.name))
+                .attr('width', xScale.bandwidth())
+                .attr('y', d => yScale(valueAccessor(d)))
+                .attr('height', d => innerHeight - yScale(valueAccessor(d)))
+                .attr('fill', barColor);
+
+            // Title
+            svg.append('text')
+                .attr('x', width / 2)
+                .attr('y', 15)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '14px')
+                .style('font-weight', 'bold')
+                .text(type === 'density' ? 'Population Density' : 'Population');
+
+            log(`${type} chart rendered with ${data.length} bars`);
+        }
+
+        function clearCharts() {
+            d3.select('#test-chart-1').selectAll('*').remove();
+            d3.select('#test-chart-2').selectAll('*').remove();
+            log('Charts cleared');
+        }
+
+        // Auto-run test on load
+        window.onload = function() {
+            log('Page loaded');
+            testD3();
+        };
+    </script>
+</body>
+</html>
