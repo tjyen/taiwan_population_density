@@ -192,8 +192,9 @@ function onEachFeature(feature, layer) {
     state.townshipLayers.set(fullname, layer);
 
     // Event handlers (no tooltip - use info box instead)
+    // Using mouseup instead of click as a workaround for click event not firing
     layer.on({
-        click: handleClick,
+        mouseup: handleMouseUp,
         dblclick: handleDoubleClick,
         mouseover: handleMouseOver,
         mouseout: handleMouseOut
@@ -216,6 +217,30 @@ function createPopupContent(props) {
 // ============================================================================
 
 function handleClick(e) {
+    const layer = e.target;
+    const fullname = layer.feature.properties.FULLNAME;
+    const currentTime = Date.now();
+
+    // Check for double-click
+    if (state.lastClickedTownship === fullname &&
+        (currentTime - state.lastClickTime) < DOUBLE_CLICK_THRESHOLD) {
+        // This is a double-click - handled by dblclick event
+        return;
+    }
+
+    state.lastClickTime = currentTime;
+    state.lastClickedTownship = fullname;
+
+    // Single click - select the township
+    if (!state.selectedTownships.has(fullname)) {
+        selectTownship(fullname);
+    }
+
+    L.DomEvent.stopPropagation(e);
+}
+
+// Workaround: Use mouseup instead of click because click events don't fire reliably
+function handleMouseUp(e) {
     const layer = e.target;
     const fullname = layer.feature.properties.FULLNAME;
     const currentTime = Date.now();
@@ -264,10 +289,9 @@ function handleMouseOver(e) {
         });
     }
 
-    layer.bringToFront();
-
-    // Keep selected layers on top
-    bringSelectedToFront();
+    // DISABLED: bringToFront() breaks click events by removing/re-adding layer to DOM
+    // layer.bringToFront();
+    // bringSelectedToFront();
 
     // Update info box
     updateInfoBox(props);
@@ -732,6 +756,115 @@ function setupEventListeners() {
 
     // Disable double-click zoom on map
     state.map.doubleClickZoom.disable();
+
+    // Direct DOM event listener for click detection
+    // This bypasses Leaflet's event system which doesn't fire reliably after selections
+    const mapContainer = document.getElementById('map');
+    document.addEventListener('mouseup', function(e) {
+        // Check if click is within map bounds
+        const rect = mapContainer.getBoundingClientRect();
+        if (e.clientX < rect.left || e.clientX > rect.right ||
+            e.clientY < rect.top || e.clientY > rect.bottom) {
+            return; // Click outside map
+        }
+
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const point = L.point(x, y);
+        const latlng = state.map.containerPointToLatLng(point);
+
+        // Find which township contains this point
+        let clickedLayer = null;
+        let clickedName = null;
+
+        state.townshipLayers.forEach((layer, fullname) => {
+            if (layer.getBounds && layer.getBounds().contains(latlng)) {
+                // More precise check using the actual geometry
+                const layerPoint = state.map.latLngToLayerPoint(latlng);
+                // Check if point is inside the polygon
+                if (isPointInLayer(latlng, layer)) {
+                    clickedLayer = layer;
+                    clickedName = fullname;
+                }
+            }
+        });
+
+        if (clickedName) {
+            const currentTime = Date.now();
+
+            // Check for double-click
+            if (state.lastClickedTownship === clickedName &&
+                (currentTime - state.lastClickTime) < DOUBLE_CLICK_THRESHOLD) {
+                // Double-click - deselect
+                if (state.selectedTownships.has(clickedName)) {
+                    deselectTownship(clickedName);
+                }
+            } else {
+                // Single click - select
+                if (!state.selectedTownships.has(clickedName)) {
+                    selectTownship(clickedName);
+                }
+            }
+
+            state.lastClickTime = currentTime;
+            state.lastClickedTownship = clickedName;
+        }
+    }, true);  // Use capture phase to get event before Leaflet
+}
+
+// Helper function to check if a point is inside a layer's geometry
+function isPointInLayer(latlng, layer) {
+    // For GeoJSON layers, check if point is inside the polygon
+    if (layer.feature && layer.feature.geometry) {
+        const geom = layer.feature.geometry;
+        if (geom.type === 'Polygon' || geom.type === 'MultiPolygon') {
+            return isPointInPolygon(latlng, geom);
+        }
+    }
+    return false;
+}
+
+// Point-in-polygon test
+function isPointInPolygon(latlng, geometry) {
+    const point = [latlng.lng, latlng.lat];
+
+    function isInRing(point, ring) {
+        let inside = false;
+        for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+            const xi = ring[i][0], yi = ring[i][1];
+            const xj = ring[j][0], yj = ring[j][1];
+            if (((yi > point[1]) !== (yj > point[1])) &&
+                (point[0] < (xj - xi) * (point[1] - yi) / (yj - yi) + xi)) {
+                inside = !inside;
+            }
+        }
+        return inside;
+    }
+
+    if (geometry.type === 'Polygon') {
+        // Check outer ring
+        if (!isInRing(point, geometry.coordinates[0])) return false;
+        // Check holes
+        for (let i = 1; i < geometry.coordinates.length; i++) {
+            if (isInRing(point, geometry.coordinates[i])) return false;
+        }
+        return true;
+    } else if (geometry.type === 'MultiPolygon') {
+        for (const polygon of geometry.coordinates) {
+            if (isInRing(point, polygon[0])) {
+                let inHole = false;
+                for (let i = 1; i < polygon.length; i++) {
+                    if (isInRing(point, polygon[i])) {
+                        inHole = true;
+                        break;
+                    }
+                }
+                if (!inHole) return true;
+            }
+        }
+        return false;
+    }
+    return false;
 }
 
 // ============================================================================
@@ -754,8 +887,15 @@ async function init() {
 // Start application
 document.addEventListener('DOMContentLoaded', init);
 
-// Make functions available globally for onclick handlers
+// Make functions and state available globally for onclick handlers and debugging
+window.state = state;
 window.deselectTownship = deselectTownship;
 window.selectCounty = selectCounty;
 window.toggleCountyGroup = toggleCountyGroup;
 window.removeTownshipFromList = removeTownshipFromList;
+window.handleClick = handleClick;
+window.handleDoubleClick = handleDoubleClick;
+window.handleMouseOver = handleMouseOver;
+window.handleMouseOut = handleMouseOut;
+window.handleMouseUp = handleMouseUp;
+window.DOUBLE_CLICK_THRESHOLD = DOUBLE_CLICK_THRESHOLD;
